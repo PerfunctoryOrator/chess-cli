@@ -10,6 +10,11 @@ class ChessBoard:
     BOARD_PADDING = 2
 
     def __init__(self, pieceStyle = "text"):
+        VALID_PIECE_STYLES = ["text", "figurine"]
+
+        if pieceStyle not in VALID_PIECE_STYLES:
+            raise ValueError("Invalid piece style. Please choose from ‘text’ or ‘figurine’.")
+
         if pieceStyle == "text":
             self.pieces = {
                 "R": "R", "N": "N", "B": "B",
