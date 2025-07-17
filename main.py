@@ -9,16 +9,7 @@ class ChessBoard:
 
     def __init__(self, fen = ""):
         # Board setup
-        self.piecePositions = [
-            "r", "n", "b", "q", "k", "b", "n", "r",
-            "p", "p", "p", "p", "p", "p", "p", "p",
-            "", "", "", "", "", "", "", "",
-            "", "", "", "", "", "", "", "",
-            "", "", "", "", "", "", "", "",
-            "", "", "", "", "", "", "", "",
-            "P", "P", "P", "P", "P", "P", "P", "P",
-            "R", "N", "B", "Q", "K", "B", "N", "R",
-        ]
+        self.piecePositions, self.activeColor, self.castlingRights, self.enPassantSquare, self.halfmoveClock, self.fullmoveNumber = parseFen(fen)
 
     def separator(self, showRank, xPadding, emptyRow = False, columns = 8):
         cellSpace = " " if emptyRow else "-"
@@ -88,5 +79,81 @@ class ChessBoard:
         print(board)
 
 
-board = ChessBoard()
+def parseFen(fen):
+    # Piece setup
+    piecePositions = []
+    i = 0
+    char = fen[i]
+    while char != " ":
+        if char == "/":
+            if len(piecePositions) % 8 != 0:
+                raise ValueError
+        elif char.isdigit():
+            for _ in range(int(char)):
+                piecePositions.append("")
+        else:
+            piecePositions.append(char)
+        i += 1
+        char = fen[i]
+
+    # Active color
+    i += 1
+    char = fen[i]
+    if char == "w" or char == "b":
+        activeColor = char
+    else:
+        raise ValueError
+
+    # Castling rights
+    castlingRights = []
+    i += 2
+    char = fen[i]
+    while char != " ":
+        if char in ["K", "Q", "k", "q"]:
+            castlingRights.append(char)
+        elif char != "-":
+            raise ValueError
+        i += 1
+        char = fen[i]
+
+    # En passant square
+    enPassantSquare = ""
+    i += 1
+    char = fen[i]
+    while char != " ":
+        enPassantSquare += char
+        i += 1
+        char = fen[i]
+    #Check en passant square
+
+    # Halfmove clock
+    halfmoveClock = ""
+    i += 1
+    char = fen[i]
+    while char != " ":
+        halfmoveClock += char
+        i += 1
+        char = fen[i]
+    halfmoveClock = int(halfmoveClock)
+    if halfmoveClock < 0:
+        raise ValueError
+
+    #Fullmove number
+    fullmoveNumber = ""
+    i += 1
+    char = fen[i]
+    while char != " ":
+        fullmoveNumber += char
+        i += 1
+        if i >= len(fen):
+            break
+        char = fen[i]
+    fullmoveNumber = int(fullmoveNumber)
+    if fullmoveNumber < 1:
+        raise ValueError
+
+    return piecePositions, activeColor, castlingRights, enPassantSquare, halfmoveClock, fullmoveNumber
+
+
+board = ChessBoard(fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 board.showBoard()
