@@ -1,37 +1,14 @@
 #
 #  main.py
-#  chess-py
+#  Chess-CLI
 #
 #  Created by Yashdeep Singh Fauzdar on 18/04/25.
 #
 
 class ChessBoard:
 
-    BOARD_PADDING = 2
-
-    def __init__(self, pieceStyle = "text"):
-        VALID_PIECE_STYLES = ["text", "figurine"]
-
-        if pieceStyle not in VALID_PIECE_STYLES:
-            raise ValueError("Invalid piece style. Please choose from ‘text’ or ‘figurine’.")
-
-        if pieceStyle == "text":
-            self.pieces = {
-                "R": "R", "N": "N", "B": "B",
-                "Q": "Q", "K": "K", "P": "P",
-                "": " ",
-                "r": "r", "n": "n", "b": "b",
-                "q": "q", "k": "k", "p": "p",
-            };
-        elif pieceStyle == "figurine":
-            self.pieces = {
-                "R": "♖", "N": "♘", "B": "♗",
-                "Q": "♕", "K": "♔", "P": "♙",
-                "": " ",
-                "r": "♜", "n": "♞", "b": "♝",
-                "q": "♛", "k": "♚", "p": "♟",
-            };
-
+    def __init__(self, fen = ""):
+        # Board setup
         self.piecePositions = [
             "r", "n", "b", "q", "k", "b", "n", "r",
             "p", "p", "p", "p", "p", "p", "p", "p",
@@ -43,33 +20,46 @@ class ChessBoard:
             "R", "N", "B", "Q", "K", "B", "N", "R",
         ]
 
-    def separator(self, columns = 8, showRank = True):
-        return ("  " if showRank else "") + "+" + ("-" * (2 * self.BOARD_PADDING + 1) + "+") * columns + "\n"
+    def separator(self, showRank, padding, columns = 8):
+        return ("  " if showRank else "") + "+" + ("-" * (2 * padding + 1) + "+") * columns + "\n"
 
     def rankIndicator(self, squareNumber, flipped = False):
         return str(int(squareNumber / 8 + 1) if flipped else int(8 - squareNumber / 8)) + " "
 
-    def fileIndicators(self, showRank = True, flipped = False):
+    def fileIndicators(self, showRank, flipped, padding):
         files = ["a", "b", "c", "d", "e", "f", "g", "h"]
         if flipped:
             files.reverse()
 
-        if showRank:
-            indicator = "  "
-        else:
-            indicator = ""
+        indicator = "  " if showRank else ""
 
         for file in files:
-            indicator += " " + " " * self.BOARD_PADDING + file + " " * self.BOARD_PADDING
+            indicator += " " + " " * padding + file + " " * padding
 
         return indicator
 
-    def showBoard(self, flipped = False):
+    def showBoard(self, pieceStyle = "text", showFilesRanks = True, flipped = False, padding = 2):
+        # Define pieces
+        pieceMap = {
+            "R": "R", "N": "N", "B": "B",
+            "Q": "Q", "K": "K", "P": "P",
+            "": " ",
+            "r": "r", "n": "n", "b": "b",
+            "q": "q", "k": "k", "p": "p"
+        } if pieceStyle == "text" else {
+            "R": "♖", "N": "♘", "B": "♗",
+            "Q": "♕", "K": "♔", "P": "♙",
+            "": " ",
+            "r": "♜", "n": "♞", "b": "♝",
+            "q": "♛", "k": "♚", "p": "♟",
+        }
+
         board = ""
         squareNumber = 0
 
-        board += self.separator()
-        board += self.rankIndicator(squareNumber, flipped = flipped)
+        board += self.separator(showRank = showFilesRanks, padding = padding)
+        if showFilesRanks:
+            board += self.rankIndicator(squareNumber, flipped = flipped)
 
         tempPiecePositions = self.piecePositions
         if flipped:
@@ -79,17 +69,19 @@ class ChessBoard:
         for piece in tempPiecePositions:
             squareNumber += 1
 
-            board += "|" + " " * self.BOARD_PADDING + self.pieces[piece] + " " * self.BOARD_PADDING
+            board += "|" + " " * padding + pieceMap[piece] + " " * padding
 
             if squareNumber % 8 == 0:
                 board += "|\n"
-                board += self.separator()
-                if squareNumber != 64:
+                board += self.separator(showRank = showFilesRanks, padding = padding)
+                if showFilesRanks and squareNumber != 64:
                     board += self.rankIndicator(squareNumber, flipped = flipped)
 
-        board += self.fileIndicators(flipped = flipped)
+        if showFilesRanks:
+            board += self.fileIndicators(showRank = showFilesRanks, flipped = flipped, padding = padding)
+
         print(board)
 
 
-board = ChessBoard(pieceStyle = "text")
-board.showBoard()
+board = ChessBoard()
+board.showBoard(pieceStyle = "text", showFilesRanks = True, flipped = False, padding = 2)
