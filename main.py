@@ -20,13 +20,15 @@ class ChessBoard:
             "R", "N", "B", "Q", "K", "B", "N", "R",
         ]
 
-    def separator(self, showRank, padding, columns = 8):
-        return ("  " if showRank else "") + "+" + ("-" * (2 * padding + 1) + "+") * columns + "\n"
+    def separator(self, showRank, xPadding, emptyRow = False, columns = 8):
+        cellSpace = " " if emptyRow else "-"
+        joint = "|" if emptyRow else "+"
+        return ("  " if showRank else "") + joint + (cellSpace * (2 * xPadding + 1) + joint) * columns + "\n"
 
-    def rankIndicator(self, squareNumber, flipped = False):
+    def rankIndicator(self, squareNumber, flipped):
         return str(int(squareNumber / 8 + 1) if flipped else int(8 - squareNumber / 8)) + " "
 
-    def fileIndicators(self, showRank, flipped, padding):
+    def fileIndicators(self, showRank, flipped, xPadding):
         files = ["a", "b", "c", "d", "e", "f", "g", "h"]
         if flipped:
             files.reverse()
@@ -34,11 +36,11 @@ class ChessBoard:
         indicator = "  " if showRank else ""
 
         for file in files:
-            indicator += " " + " " * padding + file + " " * padding
+            indicator += " " + " " * xPadding + file + " " * xPadding
 
         return indicator
 
-    def showBoard(self, pieceStyle = "text", showFilesRanks = True, flipped = False, padding = 2):
+    def showBoard(self, pieceStyle = "text", showFilesRanks = True, flipped = False, xPadding = 1, yPadding = 0):
         # Define pieces
         pieceMap = {
             "R": "R", "N": "N", "B": "B",
@@ -57,7 +59,8 @@ class ChessBoard:
         board = ""
         squareNumber = 0
 
-        board += self.separator(showRank = showFilesRanks, padding = padding)
+        board += self.separator(showRank = showFilesRanks, xPadding = xPadding)
+        board += (self.separator(showRank = showFilesRanks, xPadding = xPadding, emptyRow = True)) * yPadding
         if showFilesRanks:
             board += self.rankIndicator(squareNumber, flipped = flipped)
 
@@ -69,19 +72,21 @@ class ChessBoard:
         for piece in tempPiecePositions:
             squareNumber += 1
 
-            board += "|" + " " * padding + pieceMap[piece] + " " * padding
+            board += "|" + " " * xPadding + pieceMap[piece] + " " * xPadding
 
             if squareNumber % 8 == 0:
                 board += "|\n"
-                board += self.separator(showRank = showFilesRanks, padding = padding)
+                board += (self.separator(showRank = showFilesRanks, xPadding = xPadding, emptyRow = True)) * yPadding
+                board += self.separator(showRank = showFilesRanks, xPadding = xPadding)
                 if showFilesRanks and squareNumber != 64:
+                    board += (self.separator(showRank = showFilesRanks, xPadding = xPadding, emptyRow = True)) * yPadding
                     board += self.rankIndicator(squareNumber, flipped = flipped)
 
         if showFilesRanks:
-            board += self.fileIndicators(showRank = showFilesRanks, flipped = flipped, padding = padding)
+            board += self.fileIndicators(showRank = showFilesRanks, flipped = flipped, xPadding = xPadding)
 
         print(board)
 
 
 board = ChessBoard()
-board.showBoard(pieceStyle = "text", showFilesRanks = True, flipped = False, padding = 2)
+board.showBoard()
